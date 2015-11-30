@@ -1,0 +1,16 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "debug": "latest",
+    "ws": "latest",
+    "redis":"latest",
+    "hiredis":"latest",
+    "mysql":"latest",
+    "node.class":"latest",
+    "phpjs":"latest",
+    "log4js":"latest",
+    "async":"latest"
+  }
+}

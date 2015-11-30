@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>TEST</title>
+	
+<script type="text/javascript" src="swfobject.js"></script>
+<script type="text/javascript" src="web_socket.js"></script>
+<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="test.js"></script>
+<style type="text/css" media="screen">
+	body {
+		font-size: 12px;
+		word-wrap:break-word; 
+	}	
+	.red {
+		color:#FF0000;
+	}
+	.men {
+		float: left;
+		width: 180px;
+		border: 1px solid #999;
+		margin: 20px;
+		padding: 20px;
+	}
+	.clear{
+		clear:both;
+	}
+</style>
+</head>
+<body style="background:#EEE;">
+<div>
+<a href="#" onclick="enter_game(10)">enter game</a> |
+<a href="#" onclick="send_bet()">send_bet</a> | 
+<a href="#" onclick="ask_zhuang()">ask_zhuang</a> | 
+<a href="#" onclick="leave_game()">leave table</a> | 
+</div>
+<div class="clear">
+	<div id="men1" class="men">
+		<div>天</div>
+		<div>全部下注<span class="total"></span></div>
+		<div>我的下注<span class="my"></span></div>
+		<div class="pai"></div>
+		<div class="px"></div>
+		<div class="wl"></div>
+		
+	</div>
+	<div id="men2" class="men">
+		<div>地</div>
+		<div>全部下注<span class="total"></span></div>
+		<div>我的下注<span class="my"></span></div>
+		<div class="pai"></div>
+		<div class="px"></div>
+		<div class="wl"></div>
+	</div>
+	<div id="men3" class="men">
+		<div>玄</div>
+		<div>全部下注<span class="total"></span></div>
+		<div>我的下注<span class="my"></span></div>
+		<div class="pai"></div>
+		<div class="px"></div>
+		<div class="wl"></div>
+	</div>
+	<div id="men4" class="men">
+		<div>黃</div>
+		<div>全部下注<span class="total"></span></div>
+		<div>我的下注<span class="my"></span></div>
+		<div class="pai"></div>
+		<div class="px"></div>
+		<div class="wl"></div>
+	</div>
+	<div id="zhuang" class="men">
+		<div>莊</div>		
+		<div class="pai"></div>
+		<div class="px"></div>
+		<div class="wl"></div>
+	</div>
+</div>
+<div class="clear">
+</div>
+
+<div>
+<div id="send" style="width:28%;float:left;margin:10px;border:1px solid #DDD;padding:10px;">
+
+<h2>SEND</h2>
+</div>
+<div id="recv" style="width:28%;float:left;margin:10px;border:1px solid #DDD;padding:10px;">
+<h2>RECV</h2>
+</div>
+<div id="console" style="width:28%;float:right;margin:10px;border:1px solid #DDD;padding:10px;">
+<h2>INFO</h2>
+</div>
+</div>
+
+</body>
+</html>
