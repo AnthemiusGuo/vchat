@@ -119,15 +119,16 @@ async.parallel(
             return;
         }
 
-        logger.info('app prepare done! will init listener...');
+        logger.info('app prepare done! will init app...');
 
         //DmManager是个数据结构的对象工厂
         DmManager = require('framework/dataModelManager');
         global.dmManager = new DmManager();
 
+        //主程序
         var LogicApp = require('app/'+appTyp);
         global.logicApp = new LogicApp(appTyp,appId,serversInfo);
-
+        
         logicApp.prepare();
         logicApp.run();
     }

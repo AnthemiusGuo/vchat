@@ -1,4 +1,5 @@
 var BaseSocketManager = require("framework/baseSocketManager");
+
 var BaseApp = Class.extend({
 	init : function(typ,id,info) {
 		this.typ = typ;
@@ -11,13 +12,18 @@ var BaseApp = Class.extend({
 
 		this.serverInitReady = true;
 		this.serverSocketListenReady = false;
+
 		this.startTS = new Date().getTime();
 		this.readyTS = 0;
-		dmManager.setHashKeyValueKVDBGlobal("srvSta/"+this.typ,this.id,0);
-		this.globalTicket = F.md5(this.startTS+"sKlaa"+this.id);
-		logger.info("this.globalTicket",this.globalTicket);
 
+		dmManager.setHashKeyValueKVDBGlobal("srvSta/"+this.typ,this.id,0);
+
+		this.globalTicket = F.md5(this.startTS+"sKlaa"+this.id);
+
+		logger.info("this.globalTicket",this.globalTicket);
 		this.checkReadyTick = null;
+
+		this.ctrllers = {};
 	},
 	getErr : function(){
 		return this.errorInfo;
@@ -45,20 +51,9 @@ var BaseApp = Class.extend({
 
 	},
 	checkStatus : function() {
-		if (this.serverInitReady && !this.serverSocketListenReady){
-			logger.info("checkStatus rpc not ready");
-			this.openSocketServer();
-		}
 		if (!this.serverInitReady) {
 			logger.info("init not ready now!!");
 			this.allReady = false;
-			return;
-		}
-
-		if (rpc.allReady===false) {
-			logger.info("checkStatus rpc not ready");
-			this.allReady = false;
-			rpc.checkRPCReady();
 			return;
 		}
 
@@ -114,13 +109,14 @@ var BaseApp = Class.extend({
 	doLogin : function(uid,userSession,packetId) {
 		utils.PLEASE_OVERWRITE_ME();
 	},
-	
+
 	openUserServer : function(){
 
-		this.userSocketManager = new BaseSocketManager(this,"user",this.typ);
+		this.userSocketManager = new BaseSocketManager(this,this.typ);
 		var serversInfo = this.info;
 		//支持对用户接入,监听用户端口
 	    global.frontServer = new WebSocketServer({port: serversInfo.clientPort});
+
 	    var UserClient = require('framework/clients/userClient');
 	    frontServer.userClients = {};
 	    this._user_sock_id = 0;
@@ -136,7 +132,7 @@ var BaseApp = Class.extend({
 	        }
 	        logicApp.userSocketManager.onNewSocketConnect(clientSession,socket);
 	        socket.on('message', function(message) {
-	            logicApp.userSocketManager.onRecv(clientSession,message)
+	            logicApp.onRecv(clientSession,message)
 	        })
 	        .on('close',function(code, message){
 	            logger.debug("===closed user client");
@@ -159,7 +155,21 @@ var BaseApp = Class.extend({
 		if (this.info.frontend) {
 			this.openUserServer();
 		}
-		this.openRPCServer();
+	},
+	onRecv: function(clientSession,message) {
+		var pkg = JSON.parse(message);
+		if (!F.isset(pkg.c) || !F.isset(pkg.m) || !F.isset(pkg.d) || !F.isset(pkg.t) || !F.isset(pkg.s) || !F.isset(pkg.r)) {
+			var packetSerId = pkg.s;
+			clientSession.sendErr(-9999,"信令格式有误",packetSerId);
+			return;
+		}
+		logger.info("app/controllers/"+pkg.c);
+
+		if (!F.isset(this.ctrllers[pkg.c])){
+			var Controller = require("app/controllers/"+pkg.c);
+			this.ctrllers[pkg.c] = new Controller(this.typ,this.app);
+		}
+		this.ctrllers[pkg.c][pkg.m](pkg.d,clientSession);
 	}
 });
 
