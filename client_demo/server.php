@@ -1,7 +1,6 @@
 <?
 $uid = $_GET['uid'];
 echo json_encode([
-
         "ret"=>1,
         "data"=>[
             "ticket"=>md5('sss'),
@@ -11,5 +10,4 @@ echo json_encode([
             ]
         ]
     ]);
-
 ?>

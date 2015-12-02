@@ -38,8 +38,13 @@ if (PRODUCTION==="production") {
     };
 
 
-    config.upstreamUrl = {
-    	url:""
+    config.httpCaller = {
+    	url:"http://127.0.0.1/vchat/client_demo/api.php",
+		routerStr:"?c={c}&m={m}",
+		routerStrId:"?c={c}&m={m}&id={id}",
+		host:"127.0.0.1"
+		//Douglas Crockford模板语法，
+		//routerStr:"/{c}/{m}"
     }
 }
 config.servers = {

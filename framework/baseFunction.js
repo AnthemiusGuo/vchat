@@ -20,7 +20,7 @@ exports.checkParam = function(data,keys){
   }
   return true;
 };
-
+//Douglas Crockford
 exports.supplant = function (s,o) {
     return s.replace(
         /\{([^{}]*)\}/g,
@@ -41,9 +41,9 @@ var lookup = function(root,path){
     }
     if (exists(path)) {
       return true;
-    } 
+    }
     path = path+".js";
-    
+
     if (exists(path)) {
       return true;
     } else {
@@ -58,20 +58,20 @@ exports.PLEASE_OVERWRITE_ME = function(){
     console.trace("PLEASE OVERWRITE ME!!!");
 }
 
-var clearUpArray = function(arr) { 
-  for(var i=0,len=arr.length;i<len;i++){ 
-    if(!arr[i] || arr[i]==null || arr[i] === undefined){ 
-      arr.splice(i,1); 
-      len--; 
-      i--; 
-    } 
-  } 
-  return arr; 
-} 
+var clearUpArray = function(arr) {
+  for(var i=0,len=arr.length;i<len;i++){
+    if(!arr[i] || arr[i]==null || arr[i] === undefined){
+      arr.splice(i,1);
+      len--;
+      i--;
+    }
+  }
+  return arr;
+}
 
-var clearUpHash = function(hash) { 
+var clearUpHash = function(hash) {
   var target = {};
-  for(var k in hash){ 
+  for(var k in hash){
     if (hash[k]==null){
       continue;
     }
@@ -81,9 +81,9 @@ var clearUpHash = function(hash) {
     // } else {
     target[k] = hash[k];
     // }
-  } 
-  return target; 
-} 
+  }
+  return target;
+}
 
 exports.clearUpArray = clearUpArray;
 exports.clearUpHash = clearUpHash;

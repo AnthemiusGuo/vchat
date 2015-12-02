@@ -125,10 +125,14 @@ async.parallel(
         DmManager = require('framework/dataModelManager');
         global.dmManager = new DmManager();
 
+        //HTTPCaller
+        var HTTPCaller = require('framework/httpCaller');
+        global.httpCaller = new HTTPCaller(config.httpCaller)
+
         //主程序
         var LogicApp = require('app/'+appTyp);
         global.logicApp = new LogicApp(appTyp,appId,serversInfo);
-        
+
         logicApp.prepare();
         logicApp.run();
     }
