@@ -39,14 +39,7 @@ function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function sendChatServer(category,method,data) {
-	var dd = new Date();
-	var ts = dd.getTime();
-	var packet = {'c':category,'m':method,'d':data,'t':ts,'s':packetId,'r':1};
-	chatSocket.send(JSON.stringify(packet));
-	packetId++;
-	sendLog("rtcServer",packet);
-}
+
 
 function consoleLog(typ,msg){
 	if (typeof(msg)=="object") {
@@ -63,7 +56,6 @@ function sendLog(typ,msg) {
 	} else {
 		var log = msg;
 	}
-	console.log("send");
 	$("#send").append("<b>sock "+typ+"</b>:"+log+"<br/>");
 }
 var recvCounter = 0;
@@ -83,6 +75,7 @@ function recvLog(typ,msg) {
 
 var User = function(uid){
 	this.uid = uid;
+    this.ticket = '';
 }
 User.prototype.onUserMsg_loginAck = function(category,method,data,ts,packetId,ret) {
 
@@ -94,8 +87,49 @@ User.prototype.onUserMsg_unknown = function(category,method,data,ts,packetId,ret
 
 
 user = new User(uid);
+
 var chatSocket;
 var ticket = "";
+var videos = document.getElementById("videos");
+var sendBtn = document.getElementById("sendBtn");
+var msgs = document.getElementById("msgs");
+var sendFileBtn = document.getElementById("sendFileBtn");
+var files = document.getElementById("files");
+var webRTC = new webRTC();
+
+
+//成功创建WebSocket连接
+webRTC.on("connected", function(socket) {
+      console.log("创建连接成功，创建本地视频流。");
+    log("创建连接成功，创建本地视频流。");
+    //创建本地视频流  //
+      webRTC.createStream({
+        "video": true,
+        "audio": false
+      });
+});
+
+//创建本地视频流成功
+webRTC.on("stream_created", function(stream) {
+  document.getElementById('me').src = URL.createObjectURL(stream);
+  document.getElementById('me').play();
+});
+
+ //创建本地视频流失败
+webRTC.on("stream_create_error", function() {
+  alert("create stream failed!");
+});
+//接收到其他用户的视频流
+webRTC.on('pc_add_stream', function(stream, socketId) {
+  console.log(socketId);
+  var newVideo = document.createElement("video"),
+      id = "other-" + socketId;
+  newVideo.setAttribute("class", "other");
+  newVideo.setAttribute("autoplay", "autoplay");
+  newVideo.setAttribute("id", id);
+  videos.appendChild(newVideo);
+  webRTC.attachStream(stream, id);
+});
 
 $.getJSON(webUrl+"?m=user&a=login&uid="+uid,function(json){
 	// Write your code in the same way as for native WebSocket:
@@ -103,46 +137,39 @@ $.getJSON(webUrl+"?m=user&a=login&uid="+uid,function(json){
 		consoleLog("web","login failed!!!");
 		return;
 	}
-	ticket = json.data.ticket;
+    user.uid = json.data.uid;
+	user.ticket = json.data.ticket;
 	rtcServer = json.data.rtcServer;
-	chatSocket = new WebSocket("ws://"+rtcServer.host+":"+rtcServer.clientPort);
-	chatSocket.onopen = function() {
-		consoleLog("rtcServer","open");
-		sendChatServer('user','loginReq',{uid:user.uid,ticket:ticket})
-	};
-	chatSocket.onmessage = function(e) {
-	       // Receives a message.
-		recvLog("game",e.data);
-		var msg = JSON.parse(e.data);
-		if (msg.r<0) {
-			consoleLog("game",'<span class="red">'+msg.d.e+'</span>');
-			return;
-		}
-		if (msg.c == "user") {
-			if (typeof(user["onUserMsg_"+msg.m])=="undefined") {
-				user.onUserMsg_unknown(msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
-			} else {
-				user["onUserMsg_"+msg.m](msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
-			}
-		} else if (msg.c == "error") {
-			consoleLog("game",'<span class="red">'+msg.d.e+'</span>');
-		} else if (msg.c == "table") {
-			if (typeof(table["onGameMsg_"+msg.m])=="undefined") {
-				table.onMsg_unknown(msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
-			} else {
-				table["onGameMsg_"+msg.m](msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
-			}
-		} else if (msg.c == "game") {
-			if (typeof(game["onGameMsg_"+msg.m])=="undefined") {
-				game.onGameMsg_unknown(msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
-			} else {
-				game["onGameMsg_"+msg.m](msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
-			}
-		}
-	};
-	chatSocket.onclose = function() {
-		consoleLog("rtcServer","closed");
-	};
+
+    webRTC.init(user,"ws://"+rtcServer.host+":"+rtcServer.clientPort);
+    webRTC.connect();
+    //
+	// chatSocket = new WebSocket();
+	// chatSocket.onopen = function() {
+	// 	consoleLog("rtcServer","open");
+	// 	sendChatServer('user','loginReq',{uid:user.uid,ticket:ticket})
+	// };
+	// chatSocket.onmessage = function(e) {
+	//        // Receives a message.
+	// 	recvLog("game",e.data);
+	// 	var msg = JSON.parse(e.data);
+	// 	if (msg.r<0) {
+	// 		consoleLog("game",'<span class="red">'+msg.d.e+'</span>');
+	// 		return;
+	// 	}
+	// 	if (msg.c == "user") {
+	// 		if (typeof(user["onUserMsg_"+msg.m])=="undefined") {
+	// 			user.onUserMsg_unknown(msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
+	// 		} else {
+	// 			user["onUserMsg_"+msg.m](msg.c,msg.m,msg.d,msg.t,msg.s,msg.r);
+	// 		}
+	// 	} else {
+	// 		console.log(msg);
+	// 	}
+	// };
+	// chatSocket.onclose = function() {
+	// 	consoleLog("rtcServer","closed");
+	// };
 });
 
 
@@ -153,3 +180,7 @@ setInterval(function(){
 		}
 	});
 },180000)
+
+function log(info){
+    $("#console").append('<div>'+info+'</div>');
+}
